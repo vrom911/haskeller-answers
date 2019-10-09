@@ -64,9 +64,15 @@ answers :: NonEmpty Text
 answers = NE.cycle $
       "Monad is just a monoid in the category of endofunctors" :|
     [ "Just use nix!"
-    , "You can write it using lenses in a more readable way: list & traverse . 2_ %%~ head"
+    , "You can write it using lenses in a more readable way: list & traverse . _2 %%~ head"
     , "Windows? Why would you want that to work on Windows?"
     , "flip flip snd . (ap .) . flip flip fst . ((.) .) . flip . (((.) . (,)) .)"
     , "Types are tests"
     , "Types are docs"
+    , "Types are IDE"
+    , "fix (((<$>) <$> (:) <*> ((=<<) <$> (pure <$>) <$> (*) <$> join (+))) 1)"
+    , "I recommend to use free monads instead"
+    , "It's totally okay to use unsafePerformIO for global mutable variables"
+    , "Don't start with learning Haskell immediately, learn lambda calculus and category theory first"
+    , "It's okay if you don't get something since serious cognitive sophistication is required to use the language"
     ]
