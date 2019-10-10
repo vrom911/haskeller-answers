@@ -36,6 +36,7 @@ common common-options
 
   default-language:    Haskell2010
   default-extensions:  ConstraintKinds
+                       DataKinds
                        DeriveGeneric
                        DerivingStrategies
                        GeneralizedNewtypeDeriving
@@ -48,6 +49,7 @@ common common-options
                        StandaloneDeriving
                        TupleSections
                        TypeApplications
+                       TypeOperators
                        ViewPatterns
 library
   import:              common-options
@@ -57,11 +59,12 @@ library
                          HaskellerAnswers.Core
                            HaskellerAnswers.Core.Html
                          HaskellerAnswers.Server
-                           HaskellerAnswers.Server.Manifest
                            HaskellerAnswers.Server.Answers
+                           HaskellerAnswers.Server.Manifest
 
   other-modules:       Paths_haskeller_answers
-  build-depends:       containers
+  build-depends:       aeson
+                     , http-types
                      , jsaddle
                      , jsaddle-warp
                      , lucid ^>= 2.9.11
@@ -69,6 +72,9 @@ library
                      , servant ^>= 0.15
                      , servant-server ^>= 0.15
                      , text
+                     , wai
+                     , wai-extra
+                     , warp
 
 executable haskeller-answers-client
   import:              common-options

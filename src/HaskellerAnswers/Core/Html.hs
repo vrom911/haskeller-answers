@@ -4,13 +4,12 @@ module HaskellerAnswers.Core.Html
        ) where
 
 import Data.Text (Text)
-import Miso (View, a_, alt_, br_, button_, class_, div_, footer_, h1_, height_, href_, i_, img_,
-             onClick, p_, span_, src_, strong_, style_, text, width_)
+import Miso (View, a_, br_, button_, class_, div_, footer_, h1_, href_, i_, onClick, p_, span_,
+             text)
 import Miso.String (ms)
 
 import HaskellerAnswers.Core (Event (..), Model (..))
 
-import qualified Data.Map.Strict as M
 import qualified Lucid as L
 import qualified Lucid.Base as L
 

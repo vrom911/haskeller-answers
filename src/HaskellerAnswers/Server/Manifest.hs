@@ -1,7 +1,18 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module HaskellerAnswers.Server.Manifest
        ( ManifestApi
        , manifestServer
        ) where
+
+import Control.Monad.IO.Class (MonadIO)
+import Data.Aeson (ToJSON)
+import Data.Text (Text)
+import GHC.Generics (Generic)
+import Servant.API ((:>), Get, JSON)
+import Servant.API.Generic ((:-), ToServantApi)
+import Servant.Server (Handler)
+import Servant.Server.Generic (AsServerT)
 
 
 data Manifest = Manifest
@@ -33,7 +44,10 @@ newtype ManifestSite route = ManifestSite
 
 type ManifestApi = ToServantApi ManifestSite
 
-manifestServer :: ManifestSite AppServer
+manifestServer :: ManifestSite (AsServerT Handler)
 manifestServer = ManifestSite
-    { manifestRoute = pure haManifest
+    { manifestRoute = manifestHandler
     }
+
+manifestHandler :: MonadIO m => m Manifest
+manifestHandler = pure haManifest

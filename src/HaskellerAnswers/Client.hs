@@ -4,7 +4,6 @@ module HaskellerAnswers.Client
 
 import Data.List.NonEmpty (NonEmpty (..))
 import Miso (App (..), Effect, View, defaultEvents, noEff, startApp)
--- import Miso.Router (runRoute)
 
 import HaskellerAnswers.Core (Event (..), Model (..), defaultModel)
 import HaskellerAnswers.Core.Html (mainView)
@@ -30,9 +29,6 @@ runClient = do
 
 viewApp :: Model -> View Event
 viewApp = mainView
--- viewModel m = case runRoute (Proxy @AnswersApi) mainView modelUri m of
---     Left _  -> mainView m
---     Right v -> v
 
 updateApp :: Event -> Model -> Effect Event Model
 updateApp event model = case event of

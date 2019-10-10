@@ -2,8 +2,23 @@ module HaskellerAnswers.Server
        ( runServer
        ) where
 
-import Servant.API.Generic (ToServantApi)
+import GHC.Generics (Generic)
+import Lucid (renderBS, toHtml)
+import Miso.TypeLevel (ToServerRoutes)
+import Network.HTTP.Types (status404)
+import Network.Wai (responseLBS)
+import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Gzip (GzipFiles (GzipCompress), def, gzip, gzipFiles)
+import Network.Wai.Middleware.RequestLogger (logStdout)
+import Servant.API ((:>), Get, JSON)
+import Servant.API.Generic ((:-), ToServantApi, toServant)
+import Servant.Server (Application, Handler, Server, serve)
 import Servant.Server.Generic (AsServerT)
+
+import HaskellerAnswers.Core (Event, defaultModel)
+import HaskellerAnswers.Core.Html (Wrapper (..), mainView)
+import HaskellerAnswers.Server.Answers (AnswersApi, answersServer)
+import HaskellerAnswers.Server.Manifest (ManifestApi, manifestServer)
 
 
 runServer :: IO ()
@@ -13,27 +28,24 @@ runServer = do
   where
     compress = gzip def { gzipFiles = GzipCompress }
 
-server :: Server HaApi
-server = serve (Proxy @HaApi) (toServant haServer :<|> Tagged handle404)
-
 application :: Application
-application = serve (Proxy @HaApi) server
+application = serve (Proxy @HaApi) (toServant haServer :<|> Tagged handle404)
 
 handle404 :: Application
 handle404 _ respond = respond $ responseLBS
     status404
     [("Content-Type", "text/html")] $
-    renderBS $ toHtml $ Wrapper $ the404 defaultModel
+    renderBS $ toHtml $ Wrapper $ mainView defaultModel
 
 
 data HaSite route = HaSite
-    { haAnswersRoute  :: route :- AnswersApi
+    { haAnswersRoute  :: route :- AnswersApi -- ToServerRoutes AnswersApi Wrapper Event
     , haManifestRoute :: route :- ManifestApi
     } deriving stock (Generic)
 
 type HaApi = ToServantApi HaSite
 
-haServer :: HaSite AppServer
+haServer :: HaSite (AsServerT Handler)
 haServer = HaSite
     { haAnswersRoute  = toServant answersServer
     , haManifestRoute = toServant manifestServer
@@ -41,7 +53,7 @@ haServer = HaSite
 
 
 -- -- | Convert client side routes into server-side web handlers
--- type ServerRoutes = ToServerRoutes ClientRoutes Wrapper Action
+-- type ServerRoutes = ToServerRoutes ClientRoutes Wrapper Event
 --
 -- -- | API type
 -- type API = ("static" :> Raw)
