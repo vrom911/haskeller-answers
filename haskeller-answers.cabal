@@ -71,6 +71,7 @@ library
                      , miso ^>= 1.2.0.0
                      , servant ^>= 0.15
                      , servant-server ^>= 0.15
+                     , servant-lucid ^>= 0.8.1
                      , text
                      , wai
                      , wai-extra
@@ -78,6 +79,8 @@ library
 
 executable haskeller-answers-client
   import:              common-options
+  if !impl(ghcjs)
+    buildable: False
   hs-source-dirs:      client
   main-is:             Main.hs
   build-depends:       haskeller-answers

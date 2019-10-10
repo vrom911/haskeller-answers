@@ -2,6 +2,7 @@ module HaskellerAnswers.Server
        ( runServer
        ) where
 
+import Data.Proxy (Proxy (..))
 import GHC.Generics (Generic)
 import Lucid (renderBS, toHtml)
 import Miso.TypeLevel (ToServerRoutes)
@@ -13,7 +14,7 @@ import Network.Wai.Middleware.RequestLogger (logStdout)
 import Servant.API ((:>), Get, JSON, Raw)
 import Servant.API.Generic ((:-), ToServantApi, toServant)
 import Servant.Server (Application, Handler, Server, Tagged (..), serve)
-import Servant.Server.Generic (AsServerT, genericServe)
+import Servant.Server.Generic (AsServerT, genericServeT)
 
 import HaskellerAnswers.Core (Event, defaultModel)
 import HaskellerAnswers.Core.Html (Wrapper (..), mainView)
@@ -29,13 +30,7 @@ runServer = do
     compress = gzip def { gzipFiles = GzipCompress }
 
 application :: Application
-application = genericServe (Proxy @HaApi) (toServant haServer)
-
-handle404 :: Application
-handle404 _ respond = respond $ responseLBS
-    status404
-    [("Content-Type", "text/html")] $
-    renderBS $ toHtml $ Wrapper $ mainView defaultModel
+application = serve (Proxy @HaApi) (toServant haServer)
 
 
 data HaSite route = HaSite
@@ -52,6 +47,13 @@ haServer = HaSite
     , haManifestRoute = toServant manifestServer
     , haRaw           = Tagged handle404
     }
+
+handle404 :: Application
+handle404 _ respond = respond $ responseLBS
+    status404
+    [("Content-Type", "text/html")] $
+    renderBS $ toHtml $ Wrapper $ mainView defaultModel
+
 
 
 -- -- | Convert client side routes into server-side web handlers
