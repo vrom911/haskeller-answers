@@ -10,9 +10,9 @@ import Network.Wai (responseLBS)
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.Gzip (GzipFiles (GzipCompress), def, gzip, gzipFiles)
 import Network.Wai.Middleware.RequestLogger (logStdout)
-import Servant.API ((:>), Get, JSON)
+import Servant.API ((:>), Get, JSON, Raw)
 import Servant.API.Generic ((:-), ToServantApi, toServant)
-import Servant.Server (Application, Handler, Server, serve)
+import Servant.Server (Application, Handler, Server, Tagged (..), serve)
 import Servant.Server.Generic (AsServerT, genericServe)
 
 import HaskellerAnswers.Core (Event, defaultModel)
@@ -29,7 +29,7 @@ runServer = do
     compress = gzip def { gzipFiles = GzipCompress }
 
 application :: Application
-application = genericServe (Proxy @HaApi) (toServant haServer :<|> Tagged handle404)
+application = genericServe (Proxy @HaApi) (toServant haServer)
 
 handle404 :: Application
 handle404 _ respond = respond $ responseLBS
@@ -41,6 +41,7 @@ handle404 _ respond = respond $ responseLBS
 data HaSite route = HaSite
     { haAnswersRoute  :: route :- AnswersApi -- ToServerRoutes AnswersApi Wrapper Event
     , haManifestRoute :: route :- ManifestApi
+    , haRaw           :: route :- Raw
     } deriving stock (Generic)
 
 type HaApi = ToServantApi HaSite
@@ -49,6 +50,7 @@ haServer :: HaSite (AsServerT Handler)
 haServer = HaSite
     { haAnswersRoute  = toServant answersServer
     , haManifestRoute = toServant manifestServer
+    , haRaw           = Tagged handle404
     }
 
 
