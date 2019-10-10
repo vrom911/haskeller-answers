@@ -1,6 +1,6 @@
 module Main (main) where
 
-import HaskellerAnswers (runClient)
+import HaskellerAnswers.Client (runClient)
 
 
 main :: IO ()

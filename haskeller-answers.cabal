@@ -54,11 +54,11 @@ common common-options
 library
   import:              common-options
   hs-source-dirs:      src
-  exposed-modules:     HaskellerAnswers
-                         HaskellerAnswers.Client
-                         HaskellerAnswers.Core
+  if impl(ghcjs)
+    exposed-modules: HaskellerAnswers.Client
+  exposed-modules:     HaskellerAnswers.Core
                            HaskellerAnswers.Core.Html
-                         HaskellerAnswers.Server
+                       HaskellerAnswers.Server
                            HaskellerAnswers.Server.Answers
                            HaskellerAnswers.Server.Manifest
 

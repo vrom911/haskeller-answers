@@ -13,7 +13,7 @@ import Network.Wai.Middleware.RequestLogger (logStdout)
 import Servant.API ((:>), Get, JSON)
 import Servant.API.Generic ((:-), ToServantApi, toServant)
 import Servant.Server (Application, Handler, Server, serve)
-import Servant.Server.Generic (AsServerT)
+import Servant.Server.Generic (AsServerT, genericServe)
 
 import HaskellerAnswers.Core (Event, defaultModel)
 import HaskellerAnswers.Core.Html (Wrapper (..), mainView)
@@ -29,7 +29,7 @@ runServer = do
     compress = gzip def { gzipFiles = GzipCompress }
 
 application :: Application
-application = serve (Proxy @HaApi) (toServant haServer :<|> Tagged handle404)
+application = genericServe (Proxy @HaApi) (toServant haServer :<|> Tagged handle404)
 
 handle404 :: Application
 handle404 _ respond = respond $ responseLBS
