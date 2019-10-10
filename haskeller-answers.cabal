@@ -54,11 +54,13 @@ common common-options
 library
   import:              common-options
   hs-source-dirs:      src
-  if impl(ghcjs)
-    exposed-modules: HaskellerAnswers.Client
   exposed-modules:     HaskellerAnswers.Core
                            HaskellerAnswers.Core.Html
-                       HaskellerAnswers.Server
+
+  if impl(ghcjs)
+    exposed-modules:   HaskellerAnswers.Client
+  if !impl(ghcjs)
+    exposed-modules:  HaskellerAnswers.Server
                            HaskellerAnswers.Server.Answers
                            HaskellerAnswers.Server.Manifest
 
@@ -70,14 +72,15 @@ library
                      , lucid ^>= 2.9.11
                      , miso ^>= 1.2.0.0
                      , servant ^>= 0.15
-                     , servant-server ^>= 0.15
                      , servant-lucid ^>= 0.8.1
                      , text
+  if !impl(ghcjs)
+    build-depends:     servant-server ^>= 0.15
                      , wai
                      , wai-extra
                      , warp
 
-executable haskeller-answers-client
+executable client
   import:              common-options
   if !impl(ghcjs)
     buildable: False
@@ -86,8 +89,10 @@ executable haskeller-answers-client
   build-depends:       haskeller-answers
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
 
-executable haskeller-answers-server
+executable server
   import:              common-options
+  if impl(ghcjs)
+    buildable: False
   hs-source-dirs:      server
   main-is:             Main.hs
   build-depends:       haskeller-answers
