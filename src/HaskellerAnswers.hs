@@ -1,14 +1,16 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module HaskellerAnswers
        ( runHaskellerAnswers
        ) where
 
-import Data.List.NonEmpty (NonEmpty (..))
+import Data.Bifunctor (second)
 import Data.Text (Text)
 import Miso (App (..), Effect, View, a_, br_, button_, class_, defaultEvents, div_, footer_, h1_,
              h2_, href_, i_, noEff, onClick, p_, span_, startApp, target_, text)
 import Miso.String (ms)
+import System.Random (StdGen, getStdGen, randomR)
 
-import qualified Data.List.NonEmpty as NE
 import qualified Language.Javascript.JSaddle.Warp as JSaddle
 
 
@@ -16,9 +18,10 @@ runHaskellerAnswers :: IO ()
 runHaskellerAnswers = do
     putStrLn "Working on http://localhost:8000"
 
+    gen <- getStdGen
     JSaddle.run 8000 $ startApp $ App
         { initialAction = NoEvent
-        , model         = defaultModel
+        , model         = mkDefaultModel gen
         , update        = updateApp
         , view          = viewApp
         , events        = defaultEvents
@@ -27,14 +30,20 @@ runHaskellerAnswers = do
         }
 
 data Model = Model
-    { modelAllAnswers    :: !(NonEmpty Text)
-    , modelCurrentAnswer :: !Text
+    { modelRemainingAnswers :: ![Text]
+    , modelCurrentAnswer    :: !Text
+    , modelRandGen          :: !StdGen
     } deriving stock (Eq, Show)
 
-defaultModel :: Model
-defaultModel = Model
-    { modelAllAnswers    = answers
-    , modelCurrentAnswer = "Hello, I am a Haskeller, I will answer anything!"
+-- orphan instance because StdGen doesn't have Eq
+instance Eq StdGen where
+    gen1 == gen2 = show gen1 == show gen2
+
+mkDefaultModel :: StdGen -> Model
+mkDefaultModel gen = Model
+    { modelRemainingAnswers = defaultAnswers
+    , modelCurrentAnswer    = "Hello, I am a Haskeller, I will answer anything!"
+    , modelRandGen          = gen
     }
 
 data Event
@@ -43,13 +52,40 @@ data Event
     deriving stock (Eq, Show)
 
 updateApp :: Event -> Model -> Effect Event Model
-updateApp event model = case event of
+updateApp event model@Model{..} = case event of
     NoEvent    -> noEff model
-    NextAnswer -> let cur :| rest = modelAllAnswers model in
-        noEff $ model
-            { modelAllAnswers    = NE.fromList rest
-            , modelCurrentAnswer = cur
+    NextAnswer ->
+        let (cur, newAnswers, newGen) = pickRandomAnswer modelRandGen modelRemainingAnswers
+        in noEff $ model
+            { modelRemainingAnswers = newAnswers
+            , modelCurrentAnswer    = cur
+            , modelRandGen          = newGen
             }
+
+{- | This function extracts random element from a given list and returns this
+element and the list without this element. If the given list is empty
+we extract from 'defaultAnswers' instead.
+-}
+pickRandomAnswer :: StdGen -> [Text] -> (Text, [Text], StdGen)
+pickRandomAnswer gen = \case
+    [] -> pickRandomAnswer gen defaultAnswers
+    l  ->
+        let (i, newGen) = randomR (0, length l - 1) gen
+            (pick, remaining) = unsafeExtractAt i l
+        in (pick, remaining, newGen)
+
+{- | Returns an element by given index and the list without this element.
+This function expects this index to be between 0 and @length l - 1@.
+-}
+unsafeExtractAt :: Int -> [a] -> (a, [a])
+unsafeExtractAt n l
+    | n < 0 = error "Negative index"
+    | otherwise = go n l
+  where
+    go :: Int -> [a] -> (a, [a])
+    go _ []     = error "Index is too large"
+    go 0 (x:xs) = (x, xs)
+    go i (x:xs) = second (x:) $ go (i - 1) xs
 
 viewApp :: Model -> View Event
 viewApp Model{..} = div_ [ class_ "container" ]
@@ -75,10 +111,10 @@ footer = footer_ [ class_ "footer ha-footer" ]
         ]
     ]
 
-answers :: NonEmpty Text
-answers = NE.cycle $
-      "Monad is just a monoid in the category of endofunctors" :|
-    [ "Just use nix!"
+defaultAnswers :: [Text]
+defaultAnswers =
+    [ "Monad is just a monoid in the category of endofunctors"
+    , "Just use nix!"
     , "You can write it using lenses in a more readable way: list & traverse . _2 %%~ head"
     , "Windows? Why would you want that to work on Windows?"
     , "flip flip snd . (ap .) . flip flip fst . ((.) .) . flip . (((.) . (,)) .)"
@@ -90,4 +126,7 @@ answers = NE.cycle $
     , "It's totally okay to use unsafePerformIO for global mutable variables"
     , "Don't start with learning Haskell immediately, learn lambda calculus and category theory first"
     , "It's okay if you don't get something since serious cognitive sophistication is required to use the language"
+    , "If SPJ uses Comic Sans, I should be okay with using it as well"
+    , "Costate Comonad Coalgebra is equivalent of Java's member variable update technology for Haskell"
+    , " You don't need language extensions, just write in Haskell98"
     ]

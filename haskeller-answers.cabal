@@ -50,6 +50,7 @@ common common-options
                        TupleSections
                        TypeApplications
                        ViewPatterns
+
 library
   import:              common-options
   hs-source-dirs:      src
@@ -59,6 +60,7 @@ library
   build-depends:       jsaddle
                      , jsaddle-warp
                      , miso
+                     , random ^>= 1.1
                      , text
 
 executable client
