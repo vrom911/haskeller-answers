@@ -5,7 +5,7 @@ module HaskellerAnswers
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Text (Text)
 import Miso (App (..), Effect, View, a_, br_, button_, class_, defaultEvents, div_, footer_, h1_,
-             h2_, href_, i_, noEff, onClick, p_, span_, startApp, text)
+             h2_, href_, i_, noEff, onClick, p_, span_, startApp, target_, text)
 import Miso.String (ms)
 
 import qualified Data.List.NonEmpty as NE
@@ -53,25 +53,24 @@ updateApp event model = case event of
 
 viewApp :: Model -> View Event
 viewApp Model{..} = div_ [ class_ "container" ]
-  [ div_ []
+  [ div_ [class_ "ha-top"]
       [ h1_ [] [text "Haskeller Answers"]
       , br_ []
       , h2_ [class_ "content"] [text $ ms modelCurrentAnswer]
       , br_ []
-      , button_ [ onClick NextAnswer ] [ text "Get Next Answer" ]
+      , button_ [ class_ "next", onClick NextAnswer ] [ text "Get Next Answer" ]
       ]
   , footer
   ]
 
 -- | Footer
 footer :: View action
-footer = footer_ [ class_ "footer" ]
+footer = footer_ [ class_ "footer ha-footer" ]
     [ div_ [ ]
         [ div_ [ class_ "has-text-centered" ]
-            [ p_ []
-                [ a_ [ href_ "https://github.com/vrom911/haskeller-answers", target_ "_blank" ]
-                    [ span_ [ class_"icon is-large"] [i_ [ class_"fab fa-github"] []]]
-                ]
+            [ a_ [ href_ "https://github.com/vrom911/haskeller-answers", target_ "_blank" ]
+                [ span_ [ class_"icon is-large"] [i_ [ class_"fab fa-github"] []]]
+            , p_ [] [text "FOR ENTERTAINMENT PURPOSES ONLY"]
             ]
         ]
     ]
