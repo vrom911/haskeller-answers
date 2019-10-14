@@ -6,8 +6,8 @@ module HaskellerAnswers
 
 import Data.Bifunctor (second)
 import Data.Text (Text)
-import Miso (App (..), Effect, View, a_, br_, button_, class_, defaultEvents, div_, footer_, h1_,
-             h2_, href_, i_, noEff, onClick, p_, span_, startApp, target_, text)
+import Miso (App (..), Effect, View, a_, button_, class_, defaultEvents, div_, footer_, h1_, h2_,
+             href_, i_, noEff, onClick, p_, span_, startApp, target_, text)
 import Miso.String (ms)
 import System.Random (StdGen, getStdGen, randomR)
 
@@ -91,11 +91,10 @@ viewApp :: Model -> View Event
 viewApp Model{..} = div_ [ class_ "container" ]
   [ div_ [class_ "ha-top"]
       [ h1_ [] [text "Haskeller Answers"]
-      , br_ []
       , h2_ [class_ "content"] [text $ ms modelCurrentAnswer]
-      , br_ []
-      , button_ [ class_ "next", onClick NextAnswer ] [ text "Get Next Answer" ]
       ]
+  , div_ [class_ "ha-button"]
+      [ button_ [ class_ "next", onClick NextAnswer ] [ text "Get Next Answer" ]]
   , footer
   ]
 
