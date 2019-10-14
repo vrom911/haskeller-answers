@@ -60,6 +60,7 @@ library
   build-depends:       jsaddle
                      , jsaddle-warp
                      , miso
+                     , network-uri
                      , random ^>= 1.1
                      , text
 

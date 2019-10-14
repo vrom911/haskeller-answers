@@ -5,10 +5,14 @@ module HaskellerAnswers
        ) where
 
 import Data.Bifunctor (second)
+import Data.Proxy (Proxy (..))
 import Data.Text (Text)
 import Miso (App (..), Effect, View, a_, br_, button_, class_, defaultEvents, div_, footer_, h1_,
              h2_, href_, i_, noEff, onClick, p_, span_, startApp, target_, text)
+import Miso.Router (runRoute)
 import Miso.String (ms)
+import Miso.Subscription (getCurrentURI, uriSub)
+import Network.URI (URI)
 import System.Random (StdGen, getStdGen, randomR)
 
 import qualified Language.Javascript.JSaddle.Warp as JSaddle
@@ -19,41 +23,47 @@ runHaskellerAnswers = do
     putStrLn "Working on http://localhost:8000"
 
     gen <- getStdGen
-    JSaddle.run 8000 $ startApp $ App
-        { initialAction = NoEvent
-        , model         = mkDefaultModel gen
-        , update        = updateApp
-        , view          = viewApp
-        , events        = defaultEvents
-        , subs          = []
-        , mountPoint    = Nothing
-        }
+    JSaddle.run 8000 $ do
+        uri <- getCurrentURI
+        startApp $ App
+            { initialAction = NoEvent
+            , model         = mkDefaultModel uri gen
+            , update        = updateApp
+            , view          = mainView
+            , events        = defaultEvents
+            , subs          = [uriSub HandleUri]
+            , mountPoint    = Nothing
+            }
 
 data Model = Model
     { modelRemainingAnswers :: ![Text]
     , modelCurrentAnswer    :: !Text
     , modelRandGen          :: !StdGen
+    , modelUri              :: !URI
     } deriving stock (Eq, Show)
 
 -- orphan instance because StdGen doesn't have Eq
 instance Eq StdGen where
     gen1 == gen2 = show gen1 == show gen2
 
-mkDefaultModel :: StdGen -> Model
-mkDefaultModel gen = Model
+mkDefaultModel :: URI -> StdGen -> Model
+mkDefaultModel uri gen = Model
     { modelRemainingAnswers = defaultAnswers
     , modelCurrentAnswer    = "Hello, I am a Haskeller, I will answer anything!"
     , modelRandGen          = gen
+    , modelUri              = uri
     }
 
 data Event
     = NoEvent
+    | HandleUri URI
     | NextAnswer
     deriving stock (Eq, Show)
 
 updateApp :: Event -> Model -> Effect Event Model
 updateApp event model@Model{..} = case event of
-    NoEvent    -> noEff model
+    NoEvent -> noEff model
+    HandleUri uri -> noEff $ model { modelUri = uri }
     NextAnswer ->
         let (cur, newAnswers, newGen) = pickRandomAnswer modelRandGen modelRemainingAnswers
         in noEff $ model
@@ -86,6 +96,14 @@ unsafeExtractAt n l
     go _ []     = error "Index is too large"
     go 0 (x:xs) = (x, xs)
     go i (x:xs) = second (x:) $ go (i - 1) xs
+
+-- | Servant API for the website. We have only one endpoint.
+type Api = View Event
+
+mainView :: Model -> View Event
+mainView model = case runRoute (Proxy @Api) viewApp modelUri model of
+    Left _  -> viewApp model
+    Right v -> v
 
 viewApp :: Model -> View Event
 viewApp Model{..} = div_ [ class_ "container" ]
