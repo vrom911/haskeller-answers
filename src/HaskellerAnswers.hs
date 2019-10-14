@@ -126,7 +126,6 @@ defaultAnswers =
     , "It's totally okay to use unsafePerformIO for global mutable variables"
     , "Don't start with learning Haskell immediately, learn lambda calculus and category theory first"
     , "It's okay if you don't get something since serious cognitive sophistication is required to use the language"
-    , "If SPJ uses Comic Sans, I should be okay with using it as well"
     , "Costate Comonad Coalgebra is equivalent of Java's member variable update technology for Haskell"
-    , " You don't need language extensions, just write in Haskell98"
+    , "You don't need language extensions, just write in Haskell98"
     ]

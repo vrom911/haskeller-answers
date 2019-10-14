@@ -5,6 +5,27 @@
 
 Web app for typical Haskeller answers to everything.
 
+## For Developers
+
+`haskeller-answers` is a `miso` framework based Haskell web application.
+
+To build the app you should have `nix` installed.
+
+To ease the process of building, it uses `miso` as a GitHub submodule. So, first
+you would need to run:
+
+```
+$ git submodule update --init --recursive
+```
+
+After this is up-to-date, you can run
+
+```
+$ nix-build
+```
+
+And to see the result just open `index.html` file in your favourite browser.
+
 ## Disclaimer
 
 FOR ENTERTAINMENT PURPOSES ONLY. ALL CHARACTERS APPEARING IN THIS WORK ARE
