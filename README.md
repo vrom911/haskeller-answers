@@ -1,6 +1,7 @@
 # Haskeller Answers
 
 ![Haskeller Answers](https://raw.githubusercontent.com/vrom911/haskeller-answers/master/images/haskeller-answers-logo.png)
+[![GitHub CI](https://github.com/vrom911/haskeller-answers/workflows/CI/badge.svg)](https://github.com/vrom911/haskeller-answers/actions)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 
 Web app for typical Haskeller answers to everything.
