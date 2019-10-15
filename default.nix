@@ -1,5 +1,8 @@
 {}:
-with (import ./miso {});
+with (import (builtins.fetchTarball {
+  url = "https://github.com/dmjio/miso/archive/1114ba461605cef11ef4e1a96b5adfc4b4c9af18.tar.gz";
+  sha256 = "03x323yjpx3wq87kb2i202cw6sxj3sb79j4h712jiv4yd993gjlz";
+}) {});
 let
   inherit (pkgs) runCommand closurecompiler;
   inherit (pkgs.haskell.packages) ghcjs86;

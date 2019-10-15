@@ -11,14 +11,7 @@ Web app for typical Haskeller answers to everything.
 
 To build the app you should have `nix` installed.
 
-To ease the process of building, it uses `miso` as a GitHub submodule. So, first
-you would need to run:
-
-```
-$ git submodule update --init --recursive
-```
-
-After this is up-to-date, you can run
+After cloning this repo, you can run
 
 ```
 $ nix-build
