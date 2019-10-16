@@ -6,6 +6,7 @@
 
 Web app for typical Haskeller answers to everything.
 
+
 ## For Developers
 
 `haskeller-answers` is a `miso` framework based Haskell web application.
